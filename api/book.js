@@ -5,15 +5,15 @@ const bookController = require('./_controller/bookController');
 
 // create 빠른 도서 생성 기능
 // 도서의 필수정보를 먼저 넣고 나머지 재고,가격,저자가 정해졌을 때 등록.
-router.post("/", async (req, res) => {
+router.post("/create", async (req, res) => {
     const result = await bookController.create(req);
     res.json(result);
 });
 
 // createDetail 상세 도서 생성 기능
 // 도서에 관한 모든 정보가 정해졌을 때 등록.
-/*
-router.post("/create", async (req, res) => {
+
+router.post("/createDetail", async (req, res) => {
     const result = await bookController.createDetail(req);
     res.json(result);
 });
@@ -33,7 +33,7 @@ router.post("/shop", async (req, res) => {
     const result = await bookController.createShop(req);
     res.json(result);
 });
-*/
+
 
 
 
@@ -45,7 +45,7 @@ router.get('/bookList', async (req, res) => {
     res.json(result);
 });
 
-/*
+
 // 장르 전체 조회, 최대 길이 지정
 router.get('/genreList', async (req, res) => {
     const result = await bookController.genreList(req);
@@ -61,7 +61,7 @@ router.get('/shopList', async (req, res) => {
 
 
 ///// 재고 확인용들 /////
-
+/*
 // 특정 매장에 있는 전체 책들의 재고 확인
 router.get('/ShopAllSk', async (req, res) => {
     const result = await bookController.ShopAllSk(req);
@@ -90,41 +90,48 @@ router.get('/bookGeAllPc', async (req, res) => {
 */
 
 
-
 /////  정보 수정용들 ///// 
 
-/*
 // 도서 정보 수정
-router.put('/update', async (req, res) => {
-    const result = await bookController.list(req);
+router.put('/bookUpdate/:book_id', async (req, res) => {
+    const result = await bookController.bookUpdate(req);
     res.json(result);
 });
 
 // 장르 정보 수정
 // 연쇄작용 발생함 주의.
-router.put('/update', async (req, res) => {
-    const result = await bookController.list(req);
+router.put('/genreUpdate/:genre_id', async (req, res) => {
+    const result = await bookController.genreUpdate(req);
     res.json(result);
 });
 
 // 매장 정보 수정
 // 연쇄작용 발생함 주의.
-router.put('/update', async (req, res) => {
-    const result = await bookController.list(req);
+router.put('/shopUpdate/:shop_id', async (req, res) => {
+    const result = await bookController.shopUpdate(req);
     res.json(result);
 });
-*/
+
 
 
 
 /////  정보 삭제용들 /////
 
 // 도서 정보 삭제
-
+router.delete('/bookDelete/:book_id', async(req, res) => {
+    const result = await bookController.bookDelete(req);
+    res.json(result);
+})
 // 장르 정보 삭제
-
+router.delete('/genreDelete/:genre_id', async(req, res) => {
+    const result = await bookController.genreDelete(req);
+    res.json(result);
+})
 // 매장 정보 삭제
-
+router.delete('/shopDelete/:shop_id', async(req, res) => {
+    const result = await bookController.shopDelete(req);
+    res.json(result);
+})
 
 
 
