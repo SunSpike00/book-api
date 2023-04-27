@@ -354,7 +354,7 @@ const bookController = {
 
     },
 
-
+    //도서 삭제용
     bookDelete : async (req) => {
         const { book_id } = req.params;
         if (isEmpty(book_id)) {
