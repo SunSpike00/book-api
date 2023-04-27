@@ -61,7 +61,7 @@ router.get('/shopList', async (req, res) => {
 
 
 ///// 재고 확인용들 /////
-/*
+
 // 특정 매장에 있는 전체 책들의 재고 확인
 router.get('/ShopAllSk', async (req, res) => {
     const result = await bookController.ShopAllSk(req);
@@ -87,7 +87,7 @@ router.get('/bookGeAllPc', async (req, res) => {
     const result = await bookController.bookGeAllPc(req);
     res.json(result);
 });
-*/
+
 
 
 /////  정보 수정용들 ///// 
