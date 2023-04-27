@@ -173,9 +173,11 @@ const bookController = {
             const values = [genre_id, genre_name];
             const [rows] = await db.execute(query, values);
             if(rows.affectedRows == 1) {
-                STATUS.S200.result,
-                STATUS.S200.resultDesc,
-                moment().format('LT')
+                return resData(
+                    STATUS.S200.result,
+                    STATUS.S200.resultDesc,
+                    moment().format('LT'),
+                );
             } 
         } catch (e) {
             console.log(e.message);
@@ -196,10 +198,13 @@ const bookController = {
             const query = `insert into ${TABLE.SHOP} (shop_id, shop_name) values (?, ?)`
             const values = [shop_id, shop_name];
             const [rows] = await db.execute(query, values);
+            console.log(rows)
             if(rows.affectedRows == 1) {
-                STATUS.S200.result,
-                STATUS.S200.resultDesc,
-                moment().format('LT')
+                return resData(
+                    STATUS.S200.result,
+                    STATUS.S200.resultDesc,
+                    moment().format('LT')
+                );
             } 
         } catch (e) {
             console.log(e.message);
@@ -214,10 +219,12 @@ const bookController = {
         const list = await getList(req, TABLE.BOOKLIST, 'book_id');
 
         if (totalCount > 0 && list.length) {
-            return resData(STATUS.S200.result,
+            return resData(
+                STATUS.S200.result,
                 STATUS.S200.resultDesc,
                 moment().format('LT'),
-                {totalCount, list});
+                {totalCount, list}
+            );
         } else {
             return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
         }
@@ -229,10 +236,12 @@ const bookController = {
         const list = await getList(req, TABLE.GENRE, 'genre_id');
 
         if(totalCount > 0 && list.length) {
-            return resData(STATUS.S200.result,
+            return resData(
+                STATUS.S200.result,
                 STATUS.S200.resultDesc,
                 moment().format('LT'),
-                {totalCount, list});
+                {totalCount, list}
+            );
         } else {
             return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
         }
@@ -244,11 +253,112 @@ const bookController = {
         const list = await getList(req, TABLE.SHOP, 'shop_id');
 
         if(totalCount > 0 && list.length) {
-            return resData(STATUS.S200.result,
+            return resData(
+                STATUS.S200.result,
                 STATUS.S200.resultDesc,
                 moment().format('LT'),
-                {totalCount, list});
+                {totalCount, list}
+            );
         } else {
+            return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+        }
+    },
+
+    // 특정 목적 조회.
+    // 특정 매장에 있는 전체 책들의 재고 확인
+    ShopAllSk: async (req) => {
+        const { shop_name } = req.body;
+        try{
+            const query = `select bk.book_title, bk.book_stock, sh.shop_name
+            from ${TABLE.BOOKLIST} as bk, ${TABLE.SHOP} as sh
+            where bk.shop_id = sh.shop_id and sh.shop_name = ?`;
+            const values = [shop_name];
+            const [rows] = await db.execute(query, values);
+            if(rows.length > 0){
+                return resData(
+                    STATUS.S200.result,
+                    STATUS.S200.resultDesc,
+                    moment().format('LT'),
+                    {rows}
+                );
+            } else {
+                return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+            }
+        }catch(e){
+            return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+        }
+
+
+    },
+
+    // 특정 매장에 있는 특정 장르 책들의 재고 확인
+    ShopGeAllSk: async (req) => {
+        const { shop_name, genre_name } = req.body;
+        try{
+            const query = `select bk.book_title, bk.book_stock, sh.shop_name, ge.genre_name
+            from ${TABLE.BOOKLIST} as bk, ${TABLE.SHOP} as sh, ${TABLE.GENRE} as ge
+            where bk.genre_id = ge.genre_id and bk.shop_id = sh.shop_id and sh.shop_name = ? and ge.genre_name = ?`;
+            const values = [shop_name, genre_name];
+            const [rows] = await db.execute(query, values);
+            if(rows.length > 0){
+                return resData(
+                    STATUS.S200.result,
+                    STATUS.S200.resultDesc,
+                    moment().format('LT'),
+                    {rows}
+                );
+            } else {
+                return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+            }
+        }catch(e){
+            return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+        }
+    },
+
+    // 동일한 이름의 책의 재고와 가격을 여러 매장에서 확인 
+    bookAllSkPc: async (req) => {
+        const { book_title } = req.body;
+        try{
+            const query = `select bk.book_title, bk.book_stock, bk.book_price, sh.shop_name
+            from ${TABLE.BOOKLIST} as bk, ${TABLE.SHOP} as sh
+            where bk.shop_id = sh.shop_id and bk.book_title = ?`;
+            const values = [book_title];
+            const [rows] = await db.execute(query, values);
+            if(rows.length > 0){
+                return resData(
+                    STATUS.S200.result,
+                    STATUS.S200.resultDesc,
+                    moment().format('LT'),
+                    {rows}
+                );
+            } else {
+                return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+            }
+        }catch(e){
+            return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+        }
+    },
+
+    // 특정 장르별 도서 가격 확인.
+    bookGeAllPc: async (req) => {
+        const { genre_name } = req.body;
+        try{
+            const query = `select bk.book_title, bk.book_price, ge.genre_name, sh.shop_name
+            from ${TABLE.BOOKLIST} as bk, ${TABLE.GENRE} as ge, ${TABLE.SHOP} as sh
+            where bk.genre_id = ge.genre_id and bk.shop_id = sh.shop_id and ge.genre_name = ?`;
+            const values = [genre_name];
+            const [rows] = await db.execute(query, values);
+            if(rows.length > 0){
+                return resData(
+                    STATUS.S200.result,
+                    STATUS.S200.resultDesc,
+                    moment().format('LT'),
+                    {rows}
+                );
+            } else {
+                return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
+            }
+        }catch(e){
             return resData(STATUS.S201.result, STATUS.S201.resultDesc, moment().format('LT'));
         }
     },
@@ -293,7 +403,13 @@ const bookController = {
     genreUpdate : async (req) => {
         const { genre_id } = req.params;
         const { genre_value , genre_name } = req.body;
+
+        if(isEmpty(genre_id) || isEmpty(genre_value) || isEmpty(genre_name)){
+            return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
+        }
+
         const cnt = await getSelectOne(TABLE.GENRE, genre_id, 'genre_id');
+        console.log(cnt);
         try {
             if (!cnt) {
                 // 데이터 없음.
@@ -325,6 +441,10 @@ const bookController = {
         const { shop_id } = req.params;
         const { shop_value, shop_name } = req.body;
 
+        if(isEmpty(shop_id) || isEmpty(shop_value) || isEmpty(shop_name)){
+            return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
+        }
+
         const cnt = await getSelectOne(TABLE.SHOP, shop_id, 'shop_id');
 
         try{
@@ -354,7 +474,7 @@ const bookController = {
 
     },
 
-
+    //도서 삭제용
     bookDelete : async (req) => {
         const { book_id } = req.params;
         if (isEmpty(book_id)) {
@@ -375,8 +495,8 @@ const bookController = {
             const [rows] = await db.execute(query, values);
             if (rows.affectedRows == 1) {
                 return resData(
-                    STATUS.S200.result,
-                    STATUS.S200.resultDesc,
+                    STATUS.S202.result,
+                    STATUS.S202.resultDesc,
                     moment().format('LT')
                 );
             }
@@ -407,8 +527,8 @@ const bookController = {
             const [rows] = await db.execute(query, values);
             if (rows.affectedRows == 1) {
                 return resData(
-                    STATUS.S200.result,
-                    STATUS.S200.resultDesc,
+                    STATUS.S203.result,
+                    STATUS.S203.resultDesc,
                     moment().format('LT')
                 );
             }
@@ -420,8 +540,8 @@ const bookController = {
 
     // 주의 해당 내용 삭제시 관련 도서들 전부 삭제.
     shopDelete : async (req) => {
-        const { shop_id } = req.body;
-        if (isEmpty(shop)) {
+        const { shop_id } = req.params;
+        if (isEmpty(shop_id)) {
             return resData(STATUS.E100.result, STATUS.E100.resultDesc, moment().format('LT'));
         }
         const cnt = await getSelectOne(TABLE.SHOP, shop_id, 'shop_id')
@@ -439,8 +559,8 @@ const bookController = {
             const [rows] = await db.execute(query, values);
             if (rows.affectedRows == 1) {
                 return resData(
-                    STATUS.S200.result,
-                    STATUS.S200.resultDesc,
+                    STATUS.S203.result,
+                    STATUS.S203.resultDesc,
                     moment().format('LT')
                 );
             }
