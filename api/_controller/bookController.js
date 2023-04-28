@@ -44,7 +44,7 @@ const getList = async (req, tableName, id) => {
       let where = "";
       if (lastId) {
         // 0은 false
-        where = `WHERE book_id < ${lastId}`;
+        where = `WHERE ${id} < ${lastId}`;
       }
       const query = `SELECT * FROM ${table} ${where} order by ${id} asc limit 0, ${len}`;
       const [rows] = await db.execute(query);
